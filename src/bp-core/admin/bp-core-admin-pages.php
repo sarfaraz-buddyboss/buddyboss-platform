@@ -77,19 +77,28 @@ function bp_custom_pages_do_settings_sections( $page ) {
 				</div>
 				<?php
 			}
+			?>
+			<button type="button" class="bp-admin-card-toggle" aria-expanded="true">
+				<span class="dashicons dashicons-arrow-up-alt2"></span>
+				<span class="screen-reader-text"><?php esc_html_e( 'Collapse section', 'buddyboss' ); ?></span>
+			</button>
+			<?php
 			echo "</h2>\n";
 		}
+
+		echo '<div class="bp-admin-card-content">';
 
 		if ( $section['callback'] ) {
 			call_user_func( $section['callback'], $section );
 		}
 
 		if ( ! isset( $wp_settings_fields ) || ! isset( $wp_settings_fields[ $page ] ) || ! isset( $wp_settings_fields[ $page ][ $section['id'] ] ) ) {
+			echo '</div></div>';
 			continue;
 		}
 		echo '<table class="form-table">';
 		bp_custom_pages_do_settings_fields( $page, $section['id'] );
-		echo '</table></div>';
+		echo '</table></div></div>';
 	}
 }
 

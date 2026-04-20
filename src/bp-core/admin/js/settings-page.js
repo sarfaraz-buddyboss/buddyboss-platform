@@ -3066,4 +3066,81 @@ window.bp = window.bp || {};
 
 	activityTopicHandle();
 
+	/**
+	 * Collapsible admin cards.
+	 *
+	 * Adds toggle behaviour to each `.bp-admin-card` heading button and
+	 * persists the collapsed/expanded state in localStorage so the user's
+	 * preference survives page reloads.
+	 *
+	 * @since BuddyBoss 2.21.0
+	 */
+	function bpAdminCardCollapse() {
+		var STORAGE_KEY = 'bp_admin_collapsed_cards';
+
+		/**
+		 * Return the persisted collapsed-state map from localStorage.
+		 *
+		 * @return {Object} Map of card id → boolean (true = collapsed).
+		 */
+		function getCollapsed() {
+			try {
+				return JSON.parse( localStorage.getItem( STORAGE_KEY ) ) || {};
+			} catch ( e ) {
+				return {};
+			}
+		}
+
+		/**
+		 * Persist the collapsed-state map to localStorage.
+		 *
+		 * @param {Object} data Map of card id → boolean.
+		 */
+		function saveCollapsed( data ) {
+			try {
+				localStorage.setItem( STORAGE_KEY, JSON.stringify( data ) );
+			} catch ( e ) {
+				// localStorage unavailable – silently ignore.
+			}
+		}
+
+		// On page load: restore any previously collapsed cards.
+		var collapsed = getCollapsed();
+		$.each(
+			collapsed,
+			function( id, isCollapsed ) {
+				if ( isCollapsed ) {
+					$( '#' + id )
+						.addClass( 'is-collapsed' )
+						.find( '.bp-admin-card-toggle' )
+						.attr( 'aria-expanded', 'false' );
+				}
+			}
+		);
+
+		// Toggle collapse on button click.
+		$( document ).on(
+			'click',
+			'.bp-admin-card-toggle',
+			function() {
+				var $btn    = $( this );
+				var $card   = $btn.closest( '.bp-admin-card' );
+				var cardId  = $card.attr( 'id' );
+				var willCollapse = $btn.attr( 'aria-expanded' ) === 'true';
+
+				$card.toggleClass( 'is-collapsed', willCollapse );
+				$btn.attr( 'aria-expanded', willCollapse ? 'false' : 'true' );
+
+				// Persist the new state.
+				if ( cardId ) {
+					var data      = getCollapsed();
+					data[ cardId ] = willCollapse;
+					saveCollapsed( data );
+				}
+			}
+		);
+	}
+
+	bpAdminCardCollapse();
+
 }());
